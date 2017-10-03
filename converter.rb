@@ -67,23 +67,77 @@ class Dir_contents
   end
 end
 
+class Rename_files
+  require 'date'
+  require 'fileutils'
+
+  def initialize(arr_files, path)
+    @arr_files = arr_files
+    @path = path
+    @arr_fullpath = Array.new()
+  end
+
+  def move_and_rename_files()
+    @arr_files.each do |e|
+      @arr_fullpath << @path + e
+    end
+
+    @d = Date.today
+    @date = @d.strftime("%d_%m_%Y")
+
+    if File::directory?(@path + "#{@date}") then
+      puts "A directory with this name already exists"
+    else
+      Dir.mkdir(File.join(@path, "#{@date}"), 0755)
+    end
+
+    # This code is terrible. Copy and paste with renaming.
+    @arr_fullpath.each do |f|
+      if File.file?("#{f}") then    
+        fb = File.basename(f)
+        fbn = File.basename(f, ".*")
+        re = (/\.(jpg|png)$/i.match "#{fb}").to_s 
+        re.downcase!
+        puts "#{@path}#{@date}/#{fbn}#{re}"
+        FileUtils.cp f, "#{@path}#{@date}/#{fbn}#{re}"
+      end
+    end
+  end
+
+
+#   def rename_files()
+#     @arr_files.each do |e|
+#       @arr_fullpath << @path + e
+#     end
+
+#     i = 0
+#     @arr_fullpath.each do |f|
+#       if (File.file?("#{f}") and (not (/glav\.(jpg|png)/i.match "#{f}"))) then
+#         fb = File.basename(f, ".*")
+#         gf = f.gsub(/#{fb}/, "#{i}")
+
+#         # theoretically we have an error if the filename matches the directory name
+#         File.rename(f, gf)
+
+#         # downcase rename
+#         fbd = File.basename(f).downcase
+#         File.rename(f, fbd)
+#         i = i + 1
+# # TODO не измениять реальные файлы а возможно копировать
+#       elsif File.file?("#{f}") and (/glav\.(jpg|png)/i.match "#{f}") then
+#         puts f
+#         # fbd = File.basename(f).downcase
+#         # File.rename(f, fbd)
+#       end
+#     end
+#   end
+end
+
 pc = Parse_command_line.new()
 pc.parse_cl
-puts "Путь к каталогу: #{pc.path}"
+puts "Path to the directory: #{pc.path}"
 dr = Dir_contents.new(pc.path)
-puts dr.dir_contents()
+arr_files = dr.dir_contents()
+rf = Rename_files.new(arr_files, pc.path)
+rf.move_and_rename_files()
 
-    # @i = 0
-    # dir.each do |file| 
-    #   if File.file?(@path + file) then
-    #     puts file
-    #     old_name = File.basename(file,'.*')
-    #     # if old_name.include?(search)
-    #     # File.rename( file, new_path )
-    #     # new_name = File.basename(file).gsub(target,replace)
-    #     # puts "Renamed #{file} to #{new_name}" if $DEBUG
-    #     puts old_name
-    #     new_name = file.gsub(File.basename(file,'.*'),@i)
-    #     @i++
-    #     puts new_name
-    #   end
