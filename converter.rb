@@ -92,46 +92,38 @@ class Rename_files
     end
 
     # This code is terrible. Copy and paste with renaming.
+    @i = 0
     @arr_fullpath.each do |f|
       if File.file?("#{f}") then    
         fb = File.basename(f)
         fbn = File.basename(f, ".*")
         re = (/\.(jpg|png)$/i.match "#{fb}").to_s 
         re.downcase!
-        puts "#{@path}#{@date}/#{fbn}#{re}"
-        FileUtils.cp f, "#{@path}#{@date}/#{fbn}#{re}"
+        # puts "#{@path}#{@date}/#{fbn}#{re}"
+        # FileUtils.cp f, "#{@path}#{@date}/#{fbn}#{re}"
+        if File.basename(f, ".*") == 'glav'
+          FileUtils.cp f, "#{@path}#{@date}/#{fbn}#{re}"
+        else
+          FileUtils.cp f, "#{@path}#{@date}/#{@i}#{re}"
+          @i += 1
+        end
       end
     end
+    return @date
+  end
+end
+
+class Resize_pic
+  def initialize(path)
+    @path = path
   end
 
-
-#   def rename_files()
-#     @arr_files.each do |e|
-#       @arr_fullpath << @path + e
-#     end
-
-#     i = 0
-#     @arr_fullpath.each do |f|
-#       if (File.file?("#{f}") and (not (/glav\.(jpg|png)/i.match "#{f}"))) then
-#         fb = File.basename(f, ".*")
-#         gf = f.gsub(/#{fb}/, "#{i}")
-
-#         # theoretically we have an error if the filename matches the directory name
-#         File.rename(f, gf)
-
-#         # downcase rename
-#         fbd = File.basename(f).downcase
-#         File.rename(f, fbd)
-#         i = i + 1
-# # TODO не измениять реальные файлы а возможно копировать
-#       elsif File.file?("#{f}") and (/glav\.(jpg|png)/i.match "#{f}") then
-#         puts f
-#         # fbd = File.basename(f).downcase
-#         # File.rename(f, fbd)
-#       end
-#     end
-#   end
+  def resize_pic
+    puts @path
+    `cd #{@path} && mogrify -path #{@path} -resize 1024 *`
+  end
 end
+
 
 pc = Parse_command_line.new()
 pc.parse_cl
@@ -139,5 +131,6 @@ puts "Path to the directory: #{pc.path}"
 dr = Dir_contents.new(pc.path)
 arr_files = dr.dir_contents()
 rf = Rename_files.new(arr_files, pc.path)
-rf.move_and_rename_files()
-
+date = rf.move_and_rename_files()
+rp = Resize_pic.new(pc.path + date)
+rp.resize_pic()
