@@ -1,6 +1,6 @@
 # Program for converting jpg and getting text from word formats
 
-VERSION = '0.0.1'
+VERSION = '0.1.0'
 
 $glav, $pic = false, false
 
