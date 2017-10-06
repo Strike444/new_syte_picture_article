@@ -147,7 +147,7 @@ class Get_text
         if /\.(doc|docx|xls|xlsx|ppt|pptx|odt|ods|odp|rtf|pdf)$/i.match "#{f}" then
           yomu = Yomu.new "#{@path}#{f}"
           text = yomu.text
-          ft = Format_text.new(text)
+          ft = Format_text.new(text, "#{@path}#{f}")
           ft.format_text          
         end
       end
@@ -157,8 +157,9 @@ class Get_text
 end
 
 class Format_text
-  def initialize(text)
+  def initialize(text, path)
     @text = text
+    @path = path
   end
 
   def format_text
@@ -175,16 +176,23 @@ class Format_text
     if $pic then
       @text << "\r\n<p>{gallery slider=boxplus.carousel}doc_admin\/glav\/#{@date}{\/gallery}</p>"
     end
-    puts @text
+    # puts @text
+    wf = Write_files.new(@text, "#{@path}.txt")
+    wf.write_files
   end
 end
 
 class Write_files
-  def initialize(text)
+  def initialize(text, path)
     @text = text
+    @path = path
   end
   
-  write_files
+  def write_files
+    f = File.new(@path, 'w')
+    f << @text
+    f.close
+  end    
 end
 
 pc = Parse_command_line.new()
