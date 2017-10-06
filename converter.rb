@@ -2,7 +2,7 @@
 
 VERSION = '0.0.1'
 
-@@glav = false
+$glav, $pic = false, false
 
 class Parse_command_line 
 
@@ -111,8 +111,9 @@ class Rename_files
         # puts "#{@path}#{@date}/#{fbn}#{re}"
         if File.basename(f, ".*") == 'glav'
           FileUtils.cp f, "#{@path}#{@date}/#{fbn}#{re}"
-          @@glav = true
+          $glav = true
         elsif (/\.(jpg|png)$/i.match File.basename(f)) then
+          $pic = true
           FileUtils.cp f, "#{@path}#{@date}/#{@i}#{re}"
           @i += 1
         end
@@ -165,9 +166,16 @@ class Format_text
     @text.strip!
     
     # puts @text  
-    puts Date_today.date_today
-    # if @@glav then { @text = "<p><img src="images/doc_admin/glav/14_09_2017/glav.jpg" alt="" width="200" height="150" style="margin: 5px; float: left;" />\r\n" + }
-
+    @date = Date_today.date_today
+    if $glav then
+      @text = "<img src=\"images\/doc_admin\/glav\/#{@date}\/glav.jpg\" alt=\"\" width=\"200\" height=\"170\" style=\"margin: 5px; float: left;\" />\r\n" +
+      "----------\r\n" +
+      @text
+    end
+    if $pic then
+      @text << "\r\n<p>{gallery slider=boxplus.carousel}doc_admin\/glav\/#{@date}{\/gallery}</p>"
+    end
+    puts @text
   end
 end
 
@@ -176,7 +184,7 @@ class Write_files
     @text = text
   end
   
-  Write_files
+  write_files
 end
 
 pc = Parse_command_line.new()
