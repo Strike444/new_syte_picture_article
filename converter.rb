@@ -2,6 +2,8 @@
 
 VERSION = '0.0.1'
 
+@@glav = false
+
 class Parse_command_line 
 
   require 'optparse'
@@ -67,6 +69,14 @@ class Dir_contents
   end
 end
 
+class Date_today
+  def self.date_today
+    @d = Date.today
+    @date = @d.strftime("%d_%m_%Y")
+    return @date
+  end
+end
+
 class Rename_files
   require 'date'
   require 'fileutils'
@@ -82,8 +92,7 @@ class Rename_files
       @arr_fullpath << @path + e
     end
 
-    @d = Date.today
-    @date = @d.strftime("%d_%m_%Y")
+    @date = Date_today.date_today
 
     if File::directory?(@path + "#{@date}") then
       puts "A directory with this name already exists"
@@ -100,10 +109,10 @@ class Rename_files
         re = (/\.(jpg|png)$/i.match "#{fb}").to_s 
         re.downcase!
         # puts "#{@path}#{@date}/#{fbn}#{re}"
-        # FileUtils.cp f, "#{@path}#{@date}/#{fbn}#{re}"
         if File.basename(f, ".*") == 'glav'
           FileUtils.cp f, "#{@path}#{@date}/#{fbn}#{re}"
-        else
+          @@glav = true
+        elsif (/\.(jpg|png)$/i.match File.basename(f)) then
           FileUtils.cp f, "#{@path}#{@date}/#{@i}#{re}"
           @i += 1
         end
@@ -124,6 +133,51 @@ class Resize_pic
   end
 end
 
+class Get_text
+  require 'yomu'
+  def initialize(files,path)
+    @files = files
+    @path = path
+  end
+
+  def files_with_text
+    @files.each do |f|
+      if File.file?("#{@path}#{f}") then
+        if /\.(doc|docx|xls|xlsx|ppt|pptx|odt|ods|odp|rtf|pdf)$/i.match "#{f}" then
+          yomu = Yomu.new "#{@path}#{f}"
+          text = yomu.text
+          ft = Format_text.new(text)
+          ft.format_text          
+        end
+      end
+    end
+    # puts "#{@path}" + "#{@files}"   
+  end
+end
+
+class Format_text
+  def initialize(text)
+    @text = text
+  end
+
+  def format_text
+    @text.squeeze! 
+    @text.strip!
+    
+    # puts @text  
+    puts Date_today.date_today
+    # if @@glav then { @text = "<p><img src="images/doc_admin/glav/14_09_2017/glav.jpg" alt="" width="200" height="150" style="margin: 5px; float: left;" />\r\n" + }
+
+  end
+end
+
+class Write_files
+  def initialize(text)
+    @text = text
+  end
+  
+  Write_files
+end
 
 pc = Parse_command_line.new()
 pc.parse_cl
@@ -134,3 +188,5 @@ rf = Rename_files.new(arr_files, pc.path)
 date = rf.move_and_rename_files()
 rp = Resize_pic.new(pc.path + date)
 rp.resize_pic()
+gt = Get_text.new(arr_files, pc.path)
+gt.files_with_text
