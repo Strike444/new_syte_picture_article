@@ -1,6 +1,6 @@
 # Program for converting jpg and getting text from word formats
 
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 $glav, $pic = false, false
 
@@ -176,6 +176,7 @@ class Format_text
   def format_text
     @text.squeeze! 
     @text.strip!
+    @text.gsub!(/^\s*/, '')
     
     # puts @text  
     @date = Date_today.date_today
