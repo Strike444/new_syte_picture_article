@@ -211,9 +211,12 @@ pc.parse_cl
 puts "Path to the directory: #{pc.path}"
 dr = Dir_contents.new(pc.path)
 arr_files = dr.dir_contents()
-rf = Rename_files.new(arr_files, pc.path)
-date = rf.move_and_rename_files()
-rp = Resize_pic.new(pc.path + date)
-rp.resize_pic()
+if arr_files.find_all{ |elem| /.+(jpg|png)$/i.match elem }.size != 0
+  puts "Found pictures."
+  rf = Rename_files.new(arr_files, pc.path)
+  date = rf.move_and_rename_files()
+  rp = Resize_pic.new(pc.path + date)
+  rp.resize_pic()
+end
 gt = Get_text.new(arr_files, pc.path)
 gt.files_with_text
