@@ -1,6 +1,6 @@
 # Program for converting jpg and getting text from word formats
 
-VERSION = '0.1.0'
+VERSION = '0.1.2'
 
 $glav, $pic = false, false
 
@@ -9,7 +9,7 @@ class Parse_command_line
   require 'optparse'
 
   def initialize() 
-    @path = ''
+    @path = nil
     @version = VERSION
   end
 
@@ -18,10 +18,25 @@ class Parse_command_line
   end
 
   def parse_cl()
+    if ARGV.length == 0
+      puts "The options not set, you can set options: -p path for path, -h for help, -v for version."
+      exit
+    end
+
+    begin
+      
     parser = OptionParser.new do|opts|
       opts.banner = "Usage: ruby converter.rb [options]"
       opts.on('-p', '--path path', 'Path') do |path|
         @path = path;
+        loop do
+          if File.directory?(@path)
+            break
+          else
+            puts "Path is wrong or not exist, plis enter valid path:"
+            @path = gets.chomp
+          end
+        end
       end
       opts.on('-h', '--help', 'Displays Help') do
         puts opts
@@ -36,17 +51,13 @@ class Parse_command_line
     parser.parse!
 
     if @path == nil
-      print 'Enter path to dir with files: '
-      @path = gets.chomp
+      puts "You insert not correct key, you can set options: -p path for path, -h for help, -v for version."
+      exit
     end
 
-    loop do
-      if File.directory?(@path)
-        break
-      else
-        puts "Path is wrong or not exist, plis enter valid path:"
-        @path = gets.chomp
-      end
+    rescue 
+      puts "You did not correctly specify the key or forgot to specify the argument to the -p key."
+      exit
     end
   end
 end
@@ -95,7 +106,7 @@ class Rename_files
     @date = Date_today.date_today
 
     if File::directory?(@path + "#{@date}") then
-      puts "A directory with this name already exists"
+      puts "A directory with this name already exists."
     else
       Dir.mkdir(File.join(@path, "#{@date}"), 0755)
     end
