@@ -174,7 +174,7 @@ class Format_text
   end
 
   def format_text
-    @text.squeeze! 
+    @text.squeeze!(" ")
     @text.strip!
     @text.gsub!(/^\s*/, '')
     
